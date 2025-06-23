@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
-const db = require('../db');
-const { table } = require('console');
+const db = require('../db/db');
 
 const Book = db.define('book', {
     id_book: {
@@ -29,6 +28,6 @@ const Book = db.define('book', {
         type: Sequelize.INTEGER,
         allowNull: false
     }
-}, { database, modelname: 'book', tablename: 'books' });
+}, { db, modelname: 'book', tablename: 'books' });
 
 module.exports = Book;
