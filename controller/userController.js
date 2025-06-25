@@ -1,11 +1,15 @@
 const User = require('../model/userModel');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 module.exports = class UserController {
     static async registerUser(req, res) {
         try {
             const { name, password, email } = req.body;
-            const user = await User.create({ name, password, email });
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const user = await User.create({ name, email, password: hashedPassword });
             res.status(201).json(user);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -68,14 +72,18 @@ module.exports = class UserController {
     static async verifyLogin(req, res) {
         try {
             const { name, password } = req.body;
-            const user = await User.findOne({ where: { name, password } });
-
-            if (user) {
-                const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET, { expiresIn: '1d' });
-                return res.json({ auth: true, token });
-            } else {
+            const user = await User.findOne({ where: { name } });
+            if (!user) {
                 return res.status(401).json({ error: 'Invalid username or password' });
             }
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({ error: 'Invalid username or password' });
+            }
+
+            const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET, { expiresIn: '1d' });
+            return res.json({ auth: true, token });
+
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

@@ -1,4 +1,3 @@
-
 # Bookstore API
 
 A simple and secure RESTful API for managing users and books. Built with **Node.js**, **Express**, **Sequelize**, **JWT**, and **SQLite**.
@@ -7,20 +6,21 @@ A simple and secure RESTful API for managing users and books. Built with **Node.
 
 ## Features
 
-- User registration and login with JWT authentication  
-- Secure CRUD operations for users and books  
-- Token-based route protection  
-- HTTPS support using SSL certificates  
+- User registration and login with JWT authentication
+- Secure CRUD operations for users and books
+- Token-based route protection
+- HTTPS support using SSL certificates
 - Organized structure with RESTful routes
 
 ---
 
 ## Technologies Used
 
-- Node.js  
-- Express.js  
-- Sequelize ORM  
-- SQLite  
+- Node.js
+- Express.js
+- Sequelize ORM
+- SQLite
+- Bcrypt
 - JSON Web Token (JWT)
 
 ---
@@ -61,6 +61,7 @@ Then generate your certificate and private key:
 ```bash
 openssl req -x509 -newkey rsa:2048 -nodes -keyout server.key -out server.cert -days 365
 ```
+
 Generates a 2048-bit RSA private key and a self-signed SSL certificate valid for 365 days.
 
 > Use `server.cert` and `server.key` in your HTTPS server configuration.
@@ -93,17 +94,18 @@ https://localhost:3000/
 
 ### Base
 
-| Method | Endpoint | Description          |
-|--------|----------|----------------------|
-| GET    | `/`      | Welcome message      |
+| Method | Endpoint | Description     |
+| ------ | -------- | --------------- |
+| GET    | `/`      | Welcome message |
 
 ---
-
 
 ### Authentication
 
-#### POST `/login`  
+#### POST `/login`
+
 **Body Parameters:**
+
 ```json
 {
   "name": "",
@@ -111,17 +113,18 @@ https://localhost:3000/
 }
 ```
 
-| Method | Endpoint   | Description             |
-|--------|------------|-------------------------|
-| POST   | `/login`   | Login and receive a JWT |
+| Method | Endpoint | Description             |
+| ------ | -------- | ----------------------- |
+| POST   | `/login` | Login and receive a JWT |
 
 ---
 
-
 ### Users
 
-#### POST `/users`  
+#### POST `/users`
+
 **Body Parameters:**
+
 ```json
 {
   "name": "",
@@ -130,8 +133,10 @@ https://localhost:3000/
 }
 ```
 
-#### PUT `/users/:id_user`  
+#### PUT `/users/:id_user`
+
 **Body Parameters:**
+
 ```json
 {
   "name": "",
@@ -140,22 +145,23 @@ https://localhost:3000/
 }
 ```
 
-| Method | Endpoint           | Auth Required | Description                         |
-|--------|--------------------|---------------|-------------------------------------|
-| POST   | `/users`           | ❌            | Register a new user                 |
-| GET    | `/users/:id_user?` | ✅            | Get all users or one by ID          |
-| PUT    | `/users/:id_user`  | ✅            | Update a user (only your own data)  |
-| DELETE | `/users/:id_user`  | ✅            | Delete a user (only your own data)  |
+| Method | Endpoint           | Auth Required | Description                        |
+| ------ | ------------------ | ------------- | ---------------------------------- |
+| POST   | `/users`           | ❌            | Register a new user                |
+| GET    | `/users/:id_user?` | ✅            | Get all users or one by ID         |
+| PUT    | `/users/:id_user`  | ✅            | Update a user (only your own data) |
+| DELETE | `/users/:id_user`  | ✅            | Delete a user (only your own data) |
 
 > ⚠️ Users can only update or delete their own data. This is validated by comparing the token's `id_user` with the `:id_user` param.
 
 ---
 
-
 ### Books
 
-#### POST `/books`  
+#### POST `/books`
+
 **Body Parameters:**
+
 ```json
 {
   "title": "",
@@ -166,8 +172,10 @@ https://localhost:3000/
 }
 ```
 
-#### PUT `/books/:id_book`  
+#### PUT `/books/:id_book`
+
 **Body Parameters:**
+
 ```json
 {
   "title": "",
@@ -178,12 +186,12 @@ https://localhost:3000/
 }
 ```
 
-| Method | Endpoint            | Auth Required | Description                     |
-|--------|---------------------|---------------|---------------------------------|
-| POST   | `/books`            | ✅            | Add a new book                  |
-| GET    | `/books/:id_book?`  | ❌            | Get all books or one by ID      |
-| PUT    | `/books/:id_book`   | ✅            | Update a book by ID             |
-| DELETE | `/books/:id_book`   | ✅            | Delete a book by ID             |
+| Method | Endpoint           | Auth Required | Description                |
+| ------ | ------------------ | ------------- | -------------------------- |
+| POST   | `/books`           | ✅            | Add a new book             |
+| GET    | `/books/:id_book?` | ❌            | Get all books or one by ID |
+| PUT    | `/books/:id_book`  | ✅            | Update a book by ID        |
+| DELETE | `/books/:id_book`  | ✅            | Delete a book by ID        |
 
 ---
 
