@@ -13,7 +13,7 @@ module.exports = class UserController {
     }
 
     static async getUsers(req, res) {
-        const id_user = req.params.id_user;
+        const { id_user } = req.params;
         try {
             if (id_user) {
                 const user = await User.findOne({ where: { id_user } });
@@ -31,7 +31,7 @@ module.exports = class UserController {
     }
 
     static async deleteUser(req, res) {
-        const { id_user } = req.body;
+        const { id_user } = req.params;
         try {
             const deletedCount = await User.destroy({ where: { id_user } });
 
@@ -45,7 +45,7 @@ module.exports = class UserController {
     }
 
     static async updateUser(req, res) {
-        const id_user_param = parseInt(req.body.id_user);
+        const id_user_param = parseInt(req.params.id_user);
         const id_user_token = req.decoded.id_user;
 
         if (isNaN(id_user_param)) {
@@ -68,15 +68,14 @@ module.exports = class UserController {
     static async verifyLogin(req, res) {
         try {
             const { name, password } = req.body;
-            const user = await User.findOne({ where: { name, password } })
-                .then((user) => {
-                    if (user) {
-                        const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET, { expiresIn: '1d' });
-                        return res.json({ auth: true, token: token });
-                    } else {
-                        res.status(401).json({ error: 'Invalid username or password' });
-                    }
-                })
+            const user = await User.findOne({ where: { name, password } });
+
+            if (user) {
+                const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET, { expiresIn: '1d' });
+                return res.json({ auth: true, token });
+            } else {
+                return res.status(401).json({ error: 'Invalid username or password' });
+            }
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

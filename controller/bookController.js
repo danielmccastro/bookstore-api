@@ -13,12 +13,12 @@ module.exports = class BookController {
     }
 
     static async deleteBook(req, res) {
-        const { id_book } = req.body;
+        const { id_book } = req.params;
         try {
-           const book = await Book.destroy({ where: { id_book } });
-           if (!book) {
-               return res.status(404).json({ message: 'Book not found' });
-           }
+            const book = await Book.destroy({ where: { id_book } });
+            if (!book) {
+                return res.status(404).json({ message: 'Book not found' });
+            }
             res.json({ message: 'Book deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -26,7 +26,8 @@ module.exports = class BookController {
     }
 
     static async updateBook(req, res) {
-        const { id_book, title, author, genre, description, price } = req.body;
+        const { id_book } = req.params;
+        const { title, author, genre, description, price } = req.body;
         try {
             await Book.update({ title, author, genre, description, price }, { where: { id_book } });
             res.json({ message: 'Book updated successfully' });
@@ -36,7 +37,7 @@ module.exports = class BookController {
     }
 
     static async getBooks(req, res) {
-        const { id_book } = req.body;
+        const { id_book } = req.params;
         try {
             if (id_book) {
                 const book = await Book.findOne({ where: { id_book } });
