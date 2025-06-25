@@ -17,6 +17,9 @@ module.exports = class UserController {
         try {
             if (id_user) {
                 const user = await User.findOne({ where: { id_user } });
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
                 res.json(user);
             } else {
                 const user = await User.findAll({ raw: true });
@@ -28,9 +31,13 @@ module.exports = class UserController {
     }
 
     static async deleteUser(req, res) {
-        const id_user = req.params.id_user;
+        const { id_user } = req.body;
         try {
-            await User.destroy({ where: { id_user } });
+            const deletedCount = await User.destroy({ where: { id_user } });
+
+            if (deletedCount === 0) {
+                return res.status(404).json({ message: 'User not found' });
+            }
             res.json({ message: 'User deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -38,21 +45,21 @@ module.exports = class UserController {
     }
 
     static async updateUser(req, res) {
-        const id_user_param = parseInt(req.params.id_user);
+        const id_user_param = parseInt(req.body.id_user);
         const id_user_token = req.decoded.id_user;
 
         if (isNaN(id_user_param)) {
-            return res.status(400).json({ error: 'ID inválido' });
+            return res.status(400).json({ error: 'Invalid ID' });
         }
 
         if (id_user_param !== id_user_token) {
-            return res.status(403).json({ error: 'Você só pode atualizar os seus próprios dados.' });
+            return res.status(403).json({ error: 'You can only update your own data.' });
         }
 
         const { name, password, email } = req.body;
         try {
             await User.update({ name, password, email }, { where: { id_user: id_user_param } });
-            res.json({ message: 'Dados atualizados com sucesso.' });
+            res.json({ message: 'Data updated successfully.' });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
@@ -64,7 +71,7 @@ module.exports = class UserController {
             const user = await User.findOne({ where: { name, password } })
                 .then((user) => {
                     if (user) {
-                        const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET);
+                        const token = jwt.sign({ id_user: user.id_user }, process.env.SECRET, { expiresIn: '1d' });
                         return res.json({ auth: true, token: token });
                     } else {
                         res.status(401).json({ error: 'Invalid username or password' });
@@ -73,30 +80,6 @@ module.exports = class UserController {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    }
-
-    static async verifyToken(req, res, next) {
-        let token = req.headers['x-access-token'] || req.headers['authorization'];
-
-        if (!token) {
-            return res.status(403).json({ error: 'No token provided' });
-        }
-
-        if (token.startsWith('Bearer ')) {
-            token = token.slice(7, token.length);
-        }
-
-        jwt.verify(token, process.env.SECRET, (err, decoded) => {
-            console.log('Token recebido:', token);
-            console.log('Secret usada:', process.env.SECRET);
-
-            if (err) {
-                return res.status(401).json({ error: 'Invalid token' });
-            }
-
-            req.decoded = decoded;
-            next();
-        });
     }
 
 };
